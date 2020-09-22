@@ -3,7 +3,7 @@ import numpy as np
 
 def cca(A, B, qa, qb):
     """
-    Canonical Correlation analysis with PC pre-processing.
+    Canonical Correlation analysis with PC pre-processing. Adapted from code written by Kerby Shedden, PhD. 
 
     Parameters:
     -----------
