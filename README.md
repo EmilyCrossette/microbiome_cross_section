@@ -1,6 +1,6 @@
 # Stored Dairy Manure Microbiome Workflow
 
-In this small pilot study I examine drivers of microbial community and antimicrobial resistance gene abundances in stored dairy manure. After using GROOT and AMRPlusPlus for read assignment to Antimicrobial Resistance (AMR) gene sequences and Phyloflash to assign reads to 
+In this small pilot study I examine drivers of microbial community and antimicrobial resistance gene abundances in stored dairy manure. GROOT and AMRPlusPlus were used for read assignment to Antimicrobial Resistance (AMR) gene sequences and Phyloflash was used to assign reads to 16S rRNA gene sequences. The files listed below run different statistical analysis to and perform some preliminary plotting.
 
 # Files
 2020-09_CONCOR_AMR_annotated.ipynb: This python notebook explores different data-preprocessing prior to running Canonical Correlation Analysis (CONCOR). The purpose of CONCOR is evaluate how metadata parameters correlate with AMR gene abundance patterns. 
