@@ -3,7 +3,7 @@ import numpy as np
 
 def cca(A, B, qa, qb):
     """
-    Canonical Correlation analysis with PC pre-processing. Adapted from code written by Kerby Shedden, PhD. 
+    Canonical Correlation analysis with PC pre-processing.
 
     Parameters:
     -----------
@@ -57,10 +57,25 @@ def cca(A, B, qa, qb):
     wa = np.dot(ua, u)
     wb = np.dot(ub, vt.T)
 
-    return wa, wb, s
+    # Variance Explained PCA 
+    var_explained_NTU = np.round(sa**2/np.sum(sa**2), decimals=3)
+    var_explained_NTU = np.sum(var_explained_NTU[0:qa])/np.sum(var_explained_NTU)
+
+    var_explained_meta = np.round(sb**2/np.sum(sb**2), decimals=3)
+    var_explained_meta = np.sum(var_explained_meta[0:qb])/np.sum(var_explained_meta)
+
+    # Percent variance captured with the biplot
+    var_biplot = np.round(s**2/np.sum(s**2), decimals=3)
+    var_biplot = np.sum(s[0:2])/np.sum(s)
+
+    # Total variance explained with the biplot
+    var_explained_a = var_biplot*var_explained_NTU 
+    var_explained_b = var_biplot*var_explained_meta
+    
+    return wa, wb, s, var_explained_a, var_explained_b 
 
 
-def biplot(A, wa, n_arrows, arr_labels=None, obj_labels=None):
+def biplot(A, wa, n_arrows, var_explained=None, arr_labels=None, obj_labels=None, meta_data=None, shape=None):
     """
     Generate a biplot.
 
@@ -94,37 +109,44 @@ def biplot(A, wa, n_arrows, arr_labels=None, obj_labels=None):
     plt.clf()
 
     # Plot points for the objects
-    plt.plot(qp[:, 0], qp[:, 1], 'o', color="orange")
+    plt.plot(qp[:, 0], qp[:, 1], 'o', color="black")
+    plt.xlabel("CONCOR Factor 1")
+    plt.ylabel("CONCOR Factor 2")
 
     # Optionally plot object labels
     if obj_labels is not None:
         for i in range(qp.shape[0]):
-            plt.text(qp[i, 0], qp[i, 1], obj_labels[i], va="top", ha="center", color="orange")
+            plt.text(qp[i, 0], qp[i, 1]+0.08, obj_labels[i], va="top", ha="center", color="black")
+            if meta_data is not None and int(meta_data.loc[shape,][i]) == 1:
+                plt.scatter(qp[i, 0], qp[i, 1], marker='^', s = 125, c = "black", label = "AD Farm")
 
     # Draw arrows
     # Get top n arrow magnitudes
     arrow_mag = [wa[i, 0]**2 + wa[i, 1]**2 for i in range(len(wa))]
     idx = np.argpartition(arrow_mag, -n_arrows)[-n_arrows:]
     arrows = [True if i in idx else False for i in range(len(wa))]
-    
+
     for i in range(len(arrows)):
         if arrows is not None and not arrows[i]:
             continue
-        plt.arrow(0, 0, 0.6*wx[i, 0], 0.6*wx[i, 1], color="purple")
+        plt.arrow(0, 0, 0.6*wx[i, 0], 0.6*wx[i, 1], color="blue", head_width=0.01)
 
         # Space the arrow label outward from the arrow head
         (x, y) = tuple(wx[i, 0:2])
         a = np.arctan2(y, x)
         r = np.sqrt(x**2 + y**2)
-        r *= 0.6
+        r *= 0.7
         x = r * np.cos(a)
         y = r * np.sin(a)
-        
-        if x > 0:
-            plt.text(x, y, arr_labels[i], va="center", ha="left", color="purple")
-        else:
-            plt.text(x, y, arr_labels[i], va="center", ha="right", color="purple")
 
+        if x > 0:
+            plt.text(x, y, arr_labels[i], va="center", ha="left", color="blue")
+        else:
+            plt.text(x, y, arr_labels[i], va="center", ha="right", color="blue")
+    
+    if var_explained is not None:
+        plt.title(f"Percent Variance Explained {round(var_explained*100,1)}%", loc='right')
+    
     return plt.gca()
 
 
